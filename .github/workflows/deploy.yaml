@@ -1,0 +1,62 @@
+name: Deploy to EKS
+
+on:
+  workflow_dispatch:
+
+env:
+  AWS_REGION: us-west-2
+  ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
+  CLUSTER_NAME: devops-cluster
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+
+    - name: Build, tag, and push images to Amazon ECR
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+      run: |
+        ./scripts/build-push-images.sh
+
+  deploy-to-eks:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Deploy to EKS
+      run: |
+        ./scripts/deploy-to-eks.sh
+
+    - name: Get LoadBalancer DNS
+      run: |
+        LB_DNS=$(kubectl get svc -n ingress-nginx ingress-nginx-controller -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+        echo "LoadBalancer DNS: $LB_DNS"
+        echo "LOAD_BALANCER_DNS=$LB_DNS" >> $GITHUB_ENV
+
+    - name: Output service URLs
+      run: |
+        echo "Frontend URL: http://${{ env.LOAD_BALANCER_DNS }}/frontend"
+        echo "Products URL: http://${{ env.LOAD_BALANCER_DNS }}/products"
+        echo "Shopping Cart URL: http://${{ env.LOAD_BALANCER_DNS }}/shopping-cart"
+        echo "Merchandise URL: http://${{ env.LOAD_BALANCER_DNS }}/merchandise"
