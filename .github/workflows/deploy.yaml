@@ -29,7 +29,19 @@ jobs:
       run: chmod +x ./scripts/build-push-images.sh
     
     - name: Build, tag, and push images to Amazon ECR
-      run: ./scripts/build-push-images.sh
+      run: |
+        docker build -t frontend:latest ./src/frontend
+        docker tag frontend:latest $ECR_REGISTRY/frontend:latest
+        docker push $ECR_REGISTRY/frontend:latest
+        docker build -t products:latest ./src/products
+        docker tag products:latest $ECR_REGISTRY/products:latest
+        docker push $ECR_REGISTRY/products:latest
+        docker build -t merchandise:latest ./src/merchandise
+        docker tag merchandise:latest $ECR_REGISTRY/merchandise:latest
+        docker push $ECR_REGISTRY/merchandise:latest  
+        docker build -t shopping-card:latest ./src/shopping-card
+        docker tag shopping-card:latest $ECR_REGISTRY/shopping-card:latest
+        docker push $ECR_REGISTRY/shopping-card:latest            
       env:
         AWS_REGION: ${{ secrets.AWS_REGION }}
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
