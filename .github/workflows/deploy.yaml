@@ -25,11 +25,15 @@ jobs:
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
 
+    - name: Make script executable
+      run: chmod +x ./scripts/build-push-images.sh
+    
     - name: Build, tag, and push images to Amazon ECR
+      run: ./scripts/build-push-images.sh
       env:
+        AWS_REGION: ${{ secrets.AWS_REGION }}
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-      run: |
-        ./scripts/build-push-images.sh
+        CLUSTER_NAME: ${{ secrets.CLUSTER_NAME }}
 
   deploy-to-eks:
     needs: build-and-push
