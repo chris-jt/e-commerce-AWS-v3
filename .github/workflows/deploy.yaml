@@ -34,14 +34,14 @@ jobs:
         docker tag frontend:latest $ECR_REGISTRY/frontend:latest
         docker push $ECR_REGISTRY/frontend:latest
         docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/products:latest ./src/products
-        docker tag products:latest $ECR_REGISTRY/products:latest
-        docker push $ECR_REGISTRY/products:latest
+        docker tag products:latest ${{ secrets.DOCKERHUB_USERNAME }}/products:latest
+        docker push ${{ secrets.DOCKERHUB_USERNAME }}/products:latest
         docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/merchandise:latest ./src/merchandise
-        docker tag merchandise:latest $ECR_REGISTRY/merchandise:latest
-        docker push $ECR_REGISTRY/merchandise:latest  
+        docker tag merchandise:latest ${{ secrets.DOCKERHUB_USERNAME }}/merchandise:latest
+        docker push ${{ secrets.DOCKERHUB_USERNAME }}/merchandise:latest  
         docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/shopping-card:latest ./src/shopping-card
-        docker tag shopping-card:latest $ECR_REGISTRY/shopping-card:latest
-        docker push $ECR_REGISTRY/shopping-card:latest            
+        docker tag shopping-card:latest ${{ secrets.DOCKERHUB_USERNAME }}/shopping-card:latest
+        docker push ${{ secrets.DOCKERHUB_USERNAME }}/shopping-card:latest            
       env:
         AWS_REGION: ${{ secrets.AWS_REGION }}
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
