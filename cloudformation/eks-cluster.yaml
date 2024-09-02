@@ -6,7 +6,7 @@ Resources:
     Type: 'AWS::EKS::Cluster'
     Properties:
       Name: devops-cluster
-      Version: '1.21'
+      Version: '1.30'
       RoleArn: !GetAtt EKSClusterRole.Arn
       ResourcesVpcConfig:
         SubnetIds: 

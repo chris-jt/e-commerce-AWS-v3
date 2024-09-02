@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 env:
-  AWS_REGION: us-west-2
+  AWS_REGION: us-east-1
   ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
   CLUSTER_NAME: devops-cluster
 
